@@ -47,12 +47,10 @@ def trapezoid_rule(func, lower_bound, upper_bound, num_steps):
     integral *= step_size
     return integral
 
-def main():
+def main(args):
     """
     Main function to parse arguments, compute the integral, and display the result.
     """
-    args = parse_arguments()
-
     def function_to_integrate(x):
         """
         Function to be integrated: x squared.
@@ -78,4 +76,5 @@ def main():
     print(f"Error: {error}")
 
 if __name__ == "__main__":
-    main()
+    args = parse_arguments()
+    main(args)
