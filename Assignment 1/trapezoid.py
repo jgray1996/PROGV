@@ -5,6 +5,7 @@ import argparse
 Module for calculating the integral of a function using the trapezoid rule.
 """
 
+
 def parse_arguments():
     """
     Parse command-line arguments for integration bounds and number of steps.
@@ -25,6 +26,7 @@ def parse_arguments():
         help="Number of steps for integration [int > 0]"
     )
     return parser.parse_args()
+
 
 def trapezoid_rule(func, lower_bound, upper_bound, num_steps):
     """
@@ -47,19 +49,21 @@ def trapezoid_rule(func, lower_bound, upper_bound, num_steps):
     integral *= step_size
     return integral
 
+
+def function_to_integrate(x):
+    """
+    Function to be integrated: x squared.
+
+    :param x: Input value.
+    :return: x squared.
+    """
+    return x ** 2
+
+
 def main(args):
     """
     Main function to parse arguments, compute the integral, and display the result.
     """
-    def function_to_integrate(x):
-        """
-        Function to be integrated: x squared.
-
-        :param x: Input value.
-        :return: x squared.
-        """
-        return x ** 2
-
     integral_value = trapezoid_rule(
         function_to_integrate,
         args.a,
@@ -74,6 +78,7 @@ def main(args):
     print(f"Calculated integral: {integral_value}")
     print(f"Expected value: {expected_value}")
     print(f"Error: {error}")
+
 
 if __name__ == "__main__":
     args = parse_arguments()
