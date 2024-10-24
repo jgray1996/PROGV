@@ -44,7 +44,7 @@ if rank == 0:
                 for i in range(len(intervals)-1)]
     comm.scatter(data, root=0)
     results = comm.gather(None, root=0)
-    print("result: ", sum(results[1:]))
+    print(sum(results[1:]))
 else:
     data = comm.scatter([], root=0)
     I = trapezoid.trapezoid_rule(func=trapezoid.function_to_integrate,
