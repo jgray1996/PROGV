@@ -31,7 +31,7 @@ def parse_arguments():
     return parser.parse_args()
 
 
-args = parse_arguments().tolist()
+args = parse_arguments()
 
 lower_boundry = args.a
 upper_boundry = args.b
@@ -40,7 +40,8 @@ if rank == 0:
 
     intervals = np.linspace(lower_boundry, upper_boundry,
                             size)
-    data = [None] + list(zip(intervals[:-1], intervals[1:]))
+    data = [None] + [(intervals[i], intervals[i+1]) 
+                for i in range(len(intervals)-1)]
     comm.scatter(data, root=0)
     results = comm.gather(None, root=0)
     print("result: ", sum(results[1:]))
