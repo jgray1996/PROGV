@@ -3,10 +3,12 @@ import argparse
 from mpi4py import MPI
 import trapezoid
 import numpy as np
+from pprint import pprint
 
 comm = MPI.COMM_WORLD
 rank = comm.Get_rank()
 size = comm.Get_size()
+
 
 def parse_arguments():
     """
@@ -38,19 +40,15 @@ upper_boundry = args.b
 if rank == 0:
 
     intervals = np.linspace(lower_boundry, upper_boundry,
-                                                size+1)
-    boundries = [[intervals[i], intervals[i+1]] 
-                for i in range(len(intervals)-1)]
-    
-    comm.scatter(boundries)
+                            size)
+    data = [None] + list(zip(intervals[:-1], intervals[1:]))
+    comm.scatter(data, root=0)
     results = comm.gather(None, root=0)
-    print(f"Results: {results}")
+    print("result: ", sum(results[1:]))
 else:
-    data = comm.scatter([],root=0)
-    print(data)
+    data = comm.scatter([], root=0)
     I = trapezoid.trapezoid_rule(func=trapezoid.function_to_integrate,
-                       lower_bound=lower_boundry,
-                       upper_bound=upper_boundry,
-                       num_steps=30)
-    I = data
+                                 lower_bound=data[0],
+                                 upper_bound=data[1],
+                                 num_steps=30)
     comm.gather(I, root=0)
