@@ -3,7 +3,6 @@ import argparse
 from mpi4py import MPI
 import trapezoid
 import numpy as np
-from pprint import pprint
 
 comm = MPI.COMM_WORLD
 rank = comm.Get_rank()
@@ -32,7 +31,7 @@ def parse_arguments():
     return parser.parse_args()
 
 
-args = parse_arguments()
+args = parse_arguments().tolist()
 
 lower_boundry = args.a
 upper_boundry = args.b
