@@ -18,7 +18,7 @@ class DatabaseHandler:
     
     def connect(self):
         self.connection = sqlite3.connect(self.path)
-        self.cursor = self.connection()
+        self.cursor = self.connection.cursor()
     
     def retrieve(self, query):
         return
@@ -42,4 +42,7 @@ class DatabaseHandler:
         return
     
     def parse_record(self, record):
+        return
+    
+    def close_connection(self):
         return
