@@ -27,6 +27,7 @@ class DBCreater:
         cursor.executescript(
             self._read_script()
         )
+        connector.close()
 
     def execute(self):
         """

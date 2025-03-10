@@ -9,18 +9,21 @@ class DatabaseHandler:
 
     def __init__(self, database_path, 
                  initialize=False):
+        """
+        Database handler initialize
+        """
         self.path = database_path
-        
-        if self.initialize:
-            db_creater = DBCreater("genbank.db",
-                                   self.path)
-            db_creater.execute()
+
+        if initialize:
+            self.initialize_database()
 
         self.connection = None
         self.cursor = None
-    
-    def initialize_database(self):
-        return
+
+    def initialize_database(self, name="genbank.db"):
+        db_creater = DBCreater(name,
+                        self.path)
+        db_creater.execute()
     
     def connect(self):
         self.connection = sqlite3.connect(self.path)
