@@ -1,4 +1,5 @@
 import sqlite3
+from src.init_db import DBCreater
 
 class DatabaseHandler:
 
@@ -9,9 +10,14 @@ class DatabaseHandler:
     def __init__(self, database_path, 
                  initialize=False):
         self.path = database_path
+        
+        if self.initialize:
+            db_creater = DBCreater("genbank.db",
+                                   self.path)
+            db_creater.execute()
+
         self.connection = None
         self.cursor = None
-        return
     
     def initialize_database(self):
         return
