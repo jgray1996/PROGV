@@ -1,9 +1,15 @@
-from Bio import SeqIO
 import re
 
 class GenbankParser:
 
+    """
+    This class puls apart genbank records into their tiniest smithereens
+    """
+
     def __init__(self):
+        """
+        Init Class
+        """
         pattern = r"\((20\d{2})\)"
         self.regex = re.compile(pattern)
         pass

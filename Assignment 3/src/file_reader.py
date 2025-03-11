@@ -1,7 +1,6 @@
 import gzip
 from glob import glob
 from Bio import SeqIO
-from src.config_handler import ConfigHandler
 
 class GenbankReader:
 
@@ -9,9 +8,8 @@ class GenbankReader:
     read genbank files
     """
 
-    def __init__(self, config_file="config.yaml"):
-        ch = ConfigHandler()
-        self.config = ch.read_config(config_file)
+    def __init__(self, config_object):
+        self.config = config_object
     
     def get_files(self):
         """

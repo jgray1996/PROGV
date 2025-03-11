@@ -1,1 +1,4 @@
 data_dir: /data/datasets/NCBI/refseq/ftp.ncbi.nlm.nih.gov/refseq/release/bacteria/
+db_name: genbank.db
+sql_script: src/create_tables.sql
+init: False

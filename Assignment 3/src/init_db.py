@@ -16,9 +16,11 @@ class DBCreater:
         with open(self.sql_script, 'r') as f_in:
             for command in f_in:
                 script += command
+
         return script
     
-    def _run_commands(self):
+    def execute(self):
+
         """
         Creates local database and executes script to it.
         """
@@ -27,13 +29,8 @@ class DBCreater:
         cursor.executescript(
             self._read_script()
         )
+        connector.commit()
         connector.close()
-
-    def execute(self):
-        """
-        Run this to initialize database with new tables
-        """
-        self._run_commands()
 
 if __name__ == "__main__":
     args = sys.argv[1:]
