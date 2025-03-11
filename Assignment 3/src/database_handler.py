@@ -38,7 +38,7 @@ class DatabaseHandler:
                 kingdom, phylum, class_, order, family, genus_group, genus = taxonomy
             # Insert custom exception for missing family etc.
             except ValueError as e:
-                print(f"Organism with altered taxonomy from record:\n{record.get('taxonomy')}")
+                print(f"Organism with altered taxonomy from record:\n{record.get('accession_numbers')}")
                 return
         species = record['organism']
 
