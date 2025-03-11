@@ -35,7 +35,6 @@ CREATE TABLE species (
     species_name TEXT,
     genus_name TEXT NOT NULL,
     accession_number TEXT UNIQUE,
-    sub_accession TEXT,
     genome_size INTEGER,
     assembly_id TEXT,
     bioproject_id TEXT,

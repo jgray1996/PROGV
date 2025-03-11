@@ -20,7 +20,7 @@ if __name__ == "__main__":
     parser = GenbankParser()
     db_handler.connect(config.get("db_name"))
 
-    print("Parsing genbank records")
+    print("Parsing genbank records...")
     for record in reader.read_files():
         r = parser.parse_record(record)
         db_handler.insert_ncbi_data(r)
