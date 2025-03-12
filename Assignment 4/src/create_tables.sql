@@ -8,5 +8,5 @@ CREATE TABLE proteins (
     position TEXT,
     product TEXT,
     AA_seq TEXT,
-    PRIMARY KEY (accession_number)
+    PRIMARY KEY (protein_id)
 );
