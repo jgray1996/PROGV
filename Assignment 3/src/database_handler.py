@@ -51,7 +51,13 @@ class DatabaseHandler:
         self.cursor.execute("INSERT OR IGNORE INTO genus (genus_name, family_name) VALUES (?, ?)", (genus, family))
         
         # get parsed data
-        _, accession_number = record['accession_numbers']
+        try:
+            _, accession_number = record['accession_numbers']
+        except ValueError as e:
+            try:
+                accession_number = record['accession_numbers']
+            except ValueError as e:
+                return
         genome_size = record['genome_size']
         assembly_id, bioproject_id, biosample_id = record['db_codes']
         pubmed_id = record.get('pubmed_id')
