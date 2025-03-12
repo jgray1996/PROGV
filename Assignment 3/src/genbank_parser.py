@@ -105,14 +105,17 @@ class GenbankParser:
         """
         dbrefs = record.dbxrefs
 
-        if len(dbrefs) != 3:
+        try:
+            if len(dbrefs) != 3:
+                return (dbrefs[0].strip("BioProject:"),
+                        dbrefs[1].strip("BioSample:"),
+                        dbrefs[3].strip("Assembly:"))
             return (dbrefs[0].strip("BioProject:"),
                     dbrefs[1].strip("BioSample:"),
-                    dbrefs[3].strip("Assembly:"))
-        return (dbrefs[0].strip("BioProject:"),
-                dbrefs[1].strip("BioSample:"),
-                dbrefs[2].strip("Assembly:"))
-            
+                    dbrefs[2].strip("Assembly:"))
+        except IndexError:
+            return (None, None, None)
+
     def parse_publication(self, publication, annotations):
         """
         Parse obtained publication object
