@@ -22,10 +22,11 @@ CONFIG_PATH = "config.yaml"
 regex = re.compile(r'\d+')
 
 def parse_proteins(record_generator):
-    
 
     first = True
+    spark_df = None
 
+    print("parsing records")
     for record in reader.read_files():
         column_names = ["id", "species", "tax_id", "locus_tag", "protein_id", "location", "length", "sequence", "AA_seq", "product"]
         entries = []
