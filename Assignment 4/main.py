@@ -24,12 +24,12 @@ regex = re.compile(r'\d+')
 def parse_proteins(record_generator):
     
 
+    first = True
 
     for record in reader.read_files():
         column_names = ["id", "species", "tax_id", "locus_tag", "protein_id", "location", "length", "sequence", "AA_seq", "product"]
         entries = []
 
-        first = True
 
         id = record.id
         annotations = parser.get_annotations(record)
