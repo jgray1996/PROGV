@@ -23,9 +23,14 @@ regex = re.compile(r'\d+')
 
 def parse_proteins(record_generator):
     
-    entries = []
+
 
     for record in reader.read_files():
+        column_names = ["id", "species", "tax_id", "locus_tag", "protein_id", "location", "length", "sequence", "AA_seq", "product"]
+        entries = []
+
+        first = True
+
         id = record.id
         annotations = parser.get_annotations(record)
         species = parser.get_species(annotations)
@@ -76,11 +81,18 @@ def parse_proteins(record_generator):
         
                 meta_points = [id, species, tax_id, locus_tag, protein_id, location, length, sequence, AA_seq, product]
 
+                     
                 entries.append(meta_points)
 
-    column_names = ["id", "species", "tax_id", "locus_tag", "protein_id", "location", "length", "sequence", "AA_seq", "product"]
-    result = {key: [value_set[i] for value_set in entries] for i, key in enumerate(column_names)}
-    return result
+        if first:
+            spark_df = spark.createDataFrame([meta_points], column_names)
+            first = False
+        else:
+            new_row = spark.createDataFrame([meta_points], column_names)
+            spark_df = spark_df.union(new_row)
+
+    # result = {key: [value_set[i] for value_set in entries] for i, key in enumerate(column_names)}
+    return spark_df
 
 
 if __name__ == "__main__":
@@ -91,18 +103,17 @@ if __name__ == "__main__":
     parser = GenbankParser()
 
     print("Parsing genbank records...")
-    # results_dict = parse_proteins(reader.get_files())
-    # # with open('resultsdict.pickle', 'wb') as handle:
-    # #     pickle.dump(results_dict, handle, protocol=pickle.HIGHEST_PROTOCOL)
+    spark_df = parse_proteins(reader.get_files())
+    # # # with open('resultsdict.pickle', 'wb') as handle:
+    # # #     pickle.dump(results_dict, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
-    with open("resultsdict.pickle", 'rb') as handle:
-         results_dict = pickle.load(handle)
+    # with open("resultsdict.pickle", 'rb') as handle:
+    #      results_dict = pickle.load(handle)
 
 
-    pandas_df = pd.DataFrame(results_dict)
-    spark_df = spark.createDataFrame(pandas_df)
-    spark_df = spark_df.withColumn("length", col("length").cast("int"))
-
+    # pandas_df = pd.DataFrame(results_dict)
+    # spark_df = spark.createDataFrame(pandas_df)
+    # spark_df = spark_df.withColumn("length", col("length").cast("int"))
 
     # Vraag 1
     spark_df.select(
