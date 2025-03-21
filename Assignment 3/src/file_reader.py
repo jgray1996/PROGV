@@ -15,7 +15,8 @@ class GenbankReader:
         """
         Get compressed genbank files from configured directory
         """
-        return glob(f"{self.config['data_dir']}*.gbff.gz")
+        poison_pill = ["memento mori"]
+        return glob(f"{self.config['data_dir']}*.gbff.gz")[:2] + poison_pill
     
     def read_files(self):
         """
@@ -25,24 +26,12 @@ class GenbankReader:
         returns: GENERATOR [Genbank.record]
         """
         for file in self.get_files():
-            with gzip.open(file, "rt") as f_in:
-                for record in SeqIO.parse(f_in, "genbank"):
-                    yield record
-
-    def read_file(self, file):
-        """
-        Reads in a single genbank file and returns the SeqIO
-        object
-        """
-        with gzip.open(file, "rt") as f_in:
-            return SeqIO.parse(f_in, "genbank")
-        
-    def read_records(self, file):
-        """
-        Makes a generator which yields
-        genbank records from a single genbank file
-
-        returns: GENERATOR [Genbank.record]
-        """
-        for record in self.read_file(file):
-            yield record
+            if file == "memento mori":
+                yield file
+            else:
+                try:
+                    with gzip.open(file, "rt") as f_in:
+                        for record in SeqIO.parse(f_in, "genbank"):
+                            yield record
+                except Exception as e:
+                    print(f"Error processing file {file}: {e}")

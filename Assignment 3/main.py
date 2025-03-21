@@ -9,7 +9,7 @@ CONFIG_PATH = "config.yaml"
 if __name__ == "__main__":
     config_h = ConfigHandler()
     config = config_h.read_config(CONFIG_PATH)
-    db_handler = DatabaseHandler()
+    db_handler = DatabaseHandler(batch_size=config.get("batch_size"))
 
     if config.get("init"):
         db_creater = DBCreater(config.get("db_name"),
@@ -24,3 +24,4 @@ if __name__ == "__main__":
     for record in reader.read_files():
         r = parser.parse_record(record)
         db_handler.insert_ncbi_data(r)
+    print("Parsed all records successfully!")

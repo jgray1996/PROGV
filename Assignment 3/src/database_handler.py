@@ -8,17 +8,23 @@ class DatabaseHandler:
     This class handles writing genomic data to a database
     """
 
-    counter = []
+    counter = 0
     inserts = []
+    kingdoms = []
+    phylums_kingdoms = []
+    classes_phylums = []
+    orders_classes = []
+    families_orders = []
+    genusses_families = []
 
-    def __init__(self):
+    def __init__(self, batch_size=50000):
         """
         Database handler initialize
         """
         self.path = None
         self.connection = None
         self.cursor = None
-        self.batch_size = 1
+        self.batch_size = batch_size
     
     def connect(self, path):
         """
@@ -27,32 +33,51 @@ class DatabaseHandler:
         self.connection = sqlite3.connect(path)
         self.cursor = self.connection.cursor()
         print(f"Connected to: {path}")
-        time.sleep(2)
 
     def insert_ncbi_data(self, record):
         """
         Writes and handles data parsed from record and writes to database
         """
 
+        if isinstance(record, str) and record == "memento mori":
+
+            self.cursor.executemany("INSERT OR IGNORE INTO kingdom (kingdom_name) VALUES (?)", set(self.kingdoms))
+            self.cursor.executemany("INSERT OR IGNORE INTO phylum (phylum_name, kingdom_name) VALUES (?, ?)", set(self.phylums_kingdoms))
+            self.cursor.executemany("INSERT OR IGNORE INTO class (class_name, phylum_name) VALUES (?, ?)", set(self.classes_phylums))
+            self.cursor.executemany("INSERT OR IGNORE INTO `order` (order_name, class_name) VALUES (?, ?)", set(self.orders_classes))
+            self.cursor.executemany("INSERT OR IGNORE INTO family (family_name, order_name) VALUES (?, ?)", set(self.families_orders))
+            self.cursor.executemany("INSERT OR IGNORE INTO genus (genus_name, family_name) VALUES (?, ?)", set(self.genusses_families))
+
+            self.cursor.executemany("""
+            INSERT OR IGNORE INTO species (
+            species_name, genus_name, sub_accession, accession_number, genome_size, 
+            assembly_id, bioproject_id, biosample_id, pubmed_id, 
+            first_article_year, genbank_version_year, total_genes, coding_genes
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """, self.inserts)
+            self.connection.commit()
+            print("Remaining records parsed!")
+            return
+
         taxonomy = record['taxonomy']
+
         try:
             kingdom, phylum, class_, order, family, genus = taxonomy
         except ValueError as e:
             try:
                 kingdom, phylum, class_, order, family, genus_group, genus = taxonomy
-            # Insert custom exception for missing family etc.
             except ValueError as e:
-                # print(f"Organism with altered taxonomy from record:\n{record.get('accession_numbers')}")
                 return
         species = record['organism']
 
-        # write all new taxonomy entries
-        self.cursor.execute("INSERT OR IGNORE INTO kingdom (kingdom_name) VALUES (?)", (kingdom,))
-        self.cursor.execute("INSERT OR IGNORE INTO phylum (phylum_name, kingdom_name) VALUES (?, ?)", (phylum, kingdom))
-        self.cursor.execute("INSERT OR IGNORE INTO class (class_name, phylum_name) VALUES (?, ?)", (class_, phylum))
-        self.cursor.execute("INSERT OR IGNORE INTO `order` (order_name, class_name) VALUES (?, ?)", (order, class_))
-        self.cursor.execute("INSERT OR IGNORE INTO family (family_name, order_name) VALUES (?, ?)", (family, order))
-        self.cursor.execute("INSERT OR IGNORE INTO genus (genus_name, family_name) VALUES (?, ?)", (genus, family))
+        # store all new taxonomy entries
+        self.kingdoms.append((kingdom,))
+        self.phylums_kingdoms.append((phylum, kingdom))
+        self.classes_phylums.append((class_, phylum))
+        self.orders_classes.append((order, class_))
+        self.families_orders.append((family, order))
+        self.genusses_families.append((genus, family))
+
         
         # get parsed data
         try:
@@ -71,13 +96,35 @@ class DatabaseHandler:
         total_genes = record['n_features']
         coding_genes = record['n_coding']
 
-        self.cursor.execute("""
-            INSERT INTO species (
-                species_name, genus_name, sub_accession, accession_number, genome_size, 
-                assembly_id, bioproject_id, biosample_id, pubmed_id, 
-                first_article_year, genbank_version_year, total_genes, coding_genes
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        """, (species, genus, sub_accession, accession_number, genome_size, assembly_id, 
+        self.counter += 1
+
+        self.inserts.append((species, genus, sub_accession, accession_number, genome_size, assembly_id, 
             bioproject_id, biosample_id, pubmed_id, first_article_year, 
             genbank_version_year, total_genes, coding_genes))
-        self.connection.commit()
+
+        if self.counter > self.batch_size:
+
+            self.cursor.executemany("INSERT OR IGNORE INTO kingdom (kingdom_name) VALUES (?)", set(self.kingdoms))
+            self.cursor.executemany("INSERT OR IGNORE INTO phylum (phylum_name, kingdom_name) VALUES (?, ?)", set(self.phylums_kingdoms))
+            self.cursor.executemany("INSERT OR IGNORE INTO class (class_name, phylum_name) VALUES (?, ?)", set(self.classes_phylums))
+            self.cursor.executemany("INSERT OR IGNORE INTO `order` (order_name, class_name) VALUES (?, ?)", set(self.orders_classes))
+            self.cursor.executemany("INSERT OR IGNORE INTO family (family_name, order_name) VALUES (?, ?)", set(self.families_orders))
+            self.cursor.executemany("INSERT OR IGNORE INTO genus (genus_name, family_name) VALUES (?, ?)", set(self.genusses_families))
+
+            self.kingdoms = []
+            self.phylums_kingdoms = []
+            self.classes_phylums = []
+            self.orders_classes = []
+            self.families_orders = []
+            self.genusses_families = []
+
+            self.cursor.executemany("""
+                INSERT OR IGNORE INTO species (
+                    species_name, genus_name, sub_accession, accession_number, genome_size, 
+                    assembly_id, bioproject_id, biosample_id, pubmed_id, 
+                    first_article_year, genbank_version_year, total_genes, coding_genes
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """, self.inserts)
+            self.connection.commit()
+            self.inserts = []
+            self.counter = 0

@@ -18,6 +18,9 @@ class GenbankParser:
         """
         This function accepts a record and parses Martijn's wishes to a dict
         """
+        if isinstance(record, str) and record == "memento mori":
+            return record
+
         annotations = self.get_annotations(record)
         accession_number = self.get_accessions(annotations)
         genome_size = self.get_genome_size(record)
