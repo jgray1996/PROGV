@@ -15,7 +15,7 @@ class GenbankReader:
         """
         Get compressed genbank files from configured directory
         """
-        return glob(f"{self.config['data_dir']}*.gbff.gz")[:2]
+        return glob(f"{self.config['data_dir']}*.gbff.gz")
     
     def read_files(self):
         """
