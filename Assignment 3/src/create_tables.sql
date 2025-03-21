@@ -34,7 +34,8 @@ CREATE TABLE genus (
 CREATE TABLE species (
     species_name TEXT,
     genus_name TEXT NOT NULL,
-    accession_number TEXT UNIQUE,
+    sub_accession TEXT UNIQUE,
+    accession_number TEXT,
     genome_size INTEGER,
     assembly_id TEXT,
     bioproject_id TEXT,
@@ -44,6 +45,6 @@ CREATE TABLE species (
     genbank_version_year INTEGER,
     total_genes INTEGER,
     coding_genes INTEGER,
-    PRIMARY KEY (accession_number),
+    PRIMARY KEY (sub_accession),
     FOREIGN KEY (genus_name) REFERENCES genus(genus_name)
 );

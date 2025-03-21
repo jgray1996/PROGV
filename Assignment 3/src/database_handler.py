@@ -8,6 +8,9 @@ class DatabaseHandler:
     This class handles writing genomic data to a database
     """
 
+    counter = []
+    inserts = []
+
     def __init__(self):
         """
         Database handler initialize
@@ -15,6 +18,7 @@ class DatabaseHandler:
         self.path = None
         self.connection = None
         self.cursor = None
+        self.batch_size = 1
     
     def connect(self, path):
         """
@@ -52,12 +56,13 @@ class DatabaseHandler:
         
         # get parsed data
         try:
-            _, accession_number = record['accession_numbers']
+            sub_accession, accession_number = record['accession_numbers']
         except ValueError as e:
             try:
-                accession_number = record['accession_numbers']
+                sub_accession, accession_number = record['accession_numbers'], record['accession_numbers']
             except ValueError as e:
                 return
+        
         genome_size = record['genome_size']
         assembly_id, bioproject_id, biosample_id = record['db_codes']
         pubmed_id = record.get('pubmed_id')
@@ -65,29 +70,14 @@ class DatabaseHandler:
         genbank_version_year = int(record['current_version'].split('-')[-1])
         total_genes = record['n_features']
         coding_genes = record['n_coding']
-        
-        # if species exists update record with new values
-        try:
-            self.cursor.execute("SELECT genome_size, total_genes, coding_genes FROM species WHERE accession_number = ?", (accession_number,))
-            existing_species = self.cursor.fetchone()
-            existing_genome_size, existing_total_genes, existing_coding_genes = existing_species
-            updated_genome_size = existing_genome_size + genome_size
-            updated_total_genes = existing_total_genes + total_genes
-            updated_coding_genes = existing_coding_genes + coding_genes
-            self.cursor.execute("""
-                UPDATE species SET genome_size = ?, total_genes = ?, coding_genes = ?
-                WHERE accession_number = ?
-            """, (updated_genome_size, updated_total_genes, updated_coding_genes, accession_number))
 
-        # if not --> new entry
-        except TypeError as e:
-            self.cursor.execute("""
-                INSERT INTO species (
-                    species_name, genus_name, accession_number, genome_size, 
-                    assembly_id, bioproject_id, biosample_id, pubmed_id, 
-                    first_article_year, genbank_version_year, total_genes, coding_genes
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            """, (species, genus, accession_number, genome_size, assembly_id, 
-                bioproject_id, biosample_id, pubmed_id, first_article_year, 
-                genbank_version_year, total_genes, coding_genes))
+        self.cursor.execute("""
+            INSERT INTO species (
+                species_name, genus_name, sub_accession, accession_number, genome_size, 
+                assembly_id, bioproject_id, biosample_id, pubmed_id, 
+                first_article_year, genbank_version_year, total_genes, coding_genes
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """, (species, genus, sub_accession, accession_number, genome_size, assembly_id, 
+            bioproject_id, biosample_id, pubmed_id, first_article_year, 
+            genbank_version_year, total_genes, coding_genes))
         self.connection.commit()
