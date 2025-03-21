@@ -34,12 +34,12 @@ class DatabaseHandler:
         self.cursor = self.connection.cursor()
         print(f"Connected to: {path}")
 
-    def insert_ncbi_data(self, record):
+    def insert_ncbi_data(self, record, last_iter=False):
         """
         Writes and handles data parsed from record and writes to database
         """
 
-        if isinstance(record, str) and record == "memento mori":
+        if last_iter:
 
             self.cursor.executemany("INSERT OR IGNORE INTO kingdom (kingdom_name) VALUES (?)", set(self.kingdoms))
             self.cursor.executemany("INSERT OR IGNORE INTO phylum (phylum_name, kingdom_name) VALUES (?, ?)", set(self.phylums_kingdoms))

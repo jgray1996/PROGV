@@ -3,6 +3,7 @@ from src.genbank_parser import GenbankParser
 from src.database_handler import DatabaseHandler
 from src.config_handler import ConfigHandler
 from src.init_db import DBCreater
+import os
 
 CONFIG_PATH = "config.yaml"
 
@@ -24,4 +25,5 @@ if __name__ == "__main__":
     for record in reader.read_files():
         r = parser.parse_record(record)
         db_handler.insert_ncbi_data(r)
+    db_handler.insert_ncbi_data(None, last_iter=True)
     print("Parsed all records successfully!")

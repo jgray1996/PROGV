@@ -1,4 +1,7 @@
-data_dir: /data/datasets/NCBI/refseq/ftp.ncbi.nlm.nih.gov/refseq/release/bacteria/
-db_name: genbank.db
+data_dir: genbanks/
+db_name: /students/2024-2025/master/jgray/genbank.db
 sql_script: src/create_tables.sql
-init: True
+# Initialize new database (Old database has to be deleted if True)
+init: False
+# Multi insert amount of records to be submitted
+batch_size: 3000
