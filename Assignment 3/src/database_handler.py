@@ -41,12 +41,18 @@ class DatabaseHandler:
 
         if last_iter:
 
-            self.cursor.executemany("INSERT OR IGNORE INTO kingdom (kingdom_name) VALUES (?)", set(self.kingdoms))
-            self.cursor.executemany("INSERT OR IGNORE INTO phylum (phylum_name, kingdom_name) VALUES (?, ?)", set(self.phylums_kingdoms))
-            self.cursor.executemany("INSERT OR IGNORE INTO class (class_name, phylum_name) VALUES (?, ?)", set(self.classes_phylums))
-            self.cursor.executemany("INSERT OR IGNORE INTO `order` (order_name, class_name) VALUES (?, ?)", set(self.orders_classes))
-            self.cursor.executemany("INSERT OR IGNORE INTO family (family_name, order_name) VALUES (?, ?)", set(self.families_orders))
-            self.cursor.executemany("INSERT OR IGNORE INTO genus (genus_name, family_name) VALUES (?, ?)", set(self.genusses_families))
+            if self.kingdoms:
+                self.cursor.executemany("INSERT OR IGNORE INTO kingdom (kingdom_name) VALUES (?)", set(self.kingdoms))
+            if self.phylums_kingdoms:
+                self.cursor.executemany("INSERT OR IGNORE INTO phylum (phylum_name, kingdom_name) VALUES (?, ?)", set(self.phylums_kingdoms))
+            if self.classes_phylums:
+                self.cursor.executemany("INSERT OR IGNORE INTO class (class_name, phylum_name) VALUES (?, ?)", set(self.classes_phylums))
+            if self.orders_classes:
+                self.cursor.executemany("INSERT OR IGNORE INTO `order` (order_name, class_name) VALUES (?, ?)", set(self.orders_classes))
+            if self.families_orders:
+                self.cursor.executemany("INSERT OR IGNORE INTO family (family_name, order_name) VALUES (?, ?)", set(self.families_orders))
+            if self.genusses_families:
+                self.cursor.executemany("INSERT OR IGNORE INTO genus (genus_name, family_name) VALUES (?, ?)", set(self.genusses_families))
 
             self.cursor.executemany("""
             INSERT OR IGNORE INTO species (
@@ -103,13 +109,19 @@ class DatabaseHandler:
             genbank_version_year, total_genes, coding_genes))
 
         if self.counter > self.batch_size:
-
-            self.cursor.executemany("INSERT OR IGNORE INTO kingdom (kingdom_name) VALUES (?)", set(self.kingdoms))
-            self.cursor.executemany("INSERT OR IGNORE INTO phylum (phylum_name, kingdom_name) VALUES (?, ?)", set(self.phylums_kingdoms))
-            self.cursor.executemany("INSERT OR IGNORE INTO class (class_name, phylum_name) VALUES (?, ?)", set(self.classes_phylums))
-            self.cursor.executemany("INSERT OR IGNORE INTO `order` (order_name, class_name) VALUES (?, ?)", set(self.orders_classes))
-            self.cursor.executemany("INSERT OR IGNORE INTO family (family_name, order_name) VALUES (?, ?)", set(self.families_orders))
-            self.cursor.executemany("INSERT OR IGNORE INTO genus (genus_name, family_name) VALUES (?, ?)", set(self.genusses_families))
+            
+            if self.kingdoms:
+                self.cursor.executemany("INSERT OR IGNORE INTO kingdom (kingdom_name) VALUES (?)", set(self.kingdoms))
+            if self.phylums_kingdoms:
+                self.cursor.executemany("INSERT OR IGNORE INTO phylum (phylum_name, kingdom_name) VALUES (?, ?)", set(self.phylums_kingdoms))
+            if self.classes_phylums:
+                self.cursor.executemany("INSERT OR IGNORE INTO class (class_name, phylum_name) VALUES (?, ?)", set(self.classes_phylums))
+            if self.orders_classes:
+                self.cursor.executemany("INSERT OR IGNORE INTO `order` (order_name, class_name) VALUES (?, ?)", set(self.orders_classes))
+            if self.families_orders:
+                self.cursor.executemany("INSERT OR IGNORE INTO family (family_name, order_name) VALUES (?, ?)", set(self.families_orders))
+            if self.genusses_families:
+                self.cursor.executemany("INSERT OR IGNORE INTO genus (genus_name, family_name) VALUES (?, ?)", set(self.genusses_families))
 
             self.kingdoms = []
             self.phylums_kingdoms = []
