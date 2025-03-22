@@ -1,0 +1,5 @@
+raw_fastq: ./dir_raw_reads/rumen/rumen_miseq/
+reference_index: kraken_indices/k2_standard/
+species_database: /students/2024-2025/master/jgray/genbank.db
+kraken_output: ./kraken_output/
+kraken_corrected: ./kraken_corrected/
