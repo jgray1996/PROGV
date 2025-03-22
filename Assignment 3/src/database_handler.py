@@ -34,6 +34,22 @@ class DatabaseHandler:
         self.cursor = self.connection.cursor()
         print(f"Connected to: {path}")
 
+    def filter_empty(self, x):
+        """
+        In some cases some of the taxonomy entries are empty,
+        we don't want to parse these into the execute function.
+        """
+        if x == [] or x == [[]]:
+            return False
+        else:
+            return True
+
+    def remove_empties(self, lists):
+        """
+        Remove entries from list which evaluate to empty or are nested empty
+        """
+        return list(filter(self.filter_empty, lists))
+
     def insert_ncbi_data(self, record, last_iter=False):
         """
         Writes and handles data parsed from record and writes to database
@@ -42,17 +58,23 @@ class DatabaseHandler:
         if last_iter:
 
             if self.kingdoms:
-                self.cursor.executemany("INSERT OR IGNORE INTO kingdom (kingdom_name) VALUES (?)", set(self.kingdoms))
+                self.cursor.executemany("INSERT OR IGNORE INTO kingdom (kingdom_name) VALUES (?)", 
+                                        self.remove_empties(set(self.kingdoms)))
             if self.phylums_kingdoms:
-                self.cursor.executemany("INSERT OR IGNORE INTO phylum (phylum_name, kingdom_name) VALUES (?, ?)", set(self.phylums_kingdoms))
+                self.cursor.executemany("INSERT OR IGNORE INTO phylum (phylum_name, kingdom_name) VALUES (?, ?)", 
+                                        self.remove_empties(set(self.phylums_kingdoms)))
             if self.classes_phylums:
-                self.cursor.executemany("INSERT OR IGNORE INTO class (class_name, phylum_name) VALUES (?, ?)", set(self.classes_phylums))
+                self.cursor.executemany("INSERT OR IGNORE INTO class (class_name, phylum_name) VALUES (?, ?)", 
+                                        self.remove_empties(set(self.classes_phylums)))
             if self.orders_classes:
-                self.cursor.executemany("INSERT OR IGNORE INTO `order` (order_name, class_name) VALUES (?, ?)", set(self.orders_classes))
+                self.cursor.executemany("INSERT OR IGNORE INTO `order` (order_name, class_name) VALUES (?, ?)", 
+                                        self.remove_empties(set(self.orders_classes)))
             if self.families_orders:
-                self.cursor.executemany("INSERT OR IGNORE INTO family (family_name, order_name) VALUES (?, ?)", set(self.families_orders))
+                self.cursor.executemany("INSERT OR IGNORE INTO family (family_name, order_name) VALUES (?, ?)", 
+                                        self.remove_empties(set(self.families_orders)))
             if self.genusses_families:
-                self.cursor.executemany("INSERT OR IGNORE INTO genus (genus_name, family_name) VALUES (?, ?)", set(self.genusses_families))
+                self.cursor.executemany("INSERT OR IGNORE INTO genus (genus_name, family_name) VALUES (?, ?)", 
+                                        self.remove_empties(set(self.genusses_families)))
 
             self.cursor.executemany("""
             INSERT OR IGNORE INTO species (
@@ -60,7 +82,7 @@ class DatabaseHandler:
             assembly_id, bioproject_id, biosample_id, pubmed_id, 
             first_article_year, genbank_version_year, total_genes, coding_genes
             ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            """, self.inserts)
+            """, self.remove_empties(self.inserts))
             self.connection.commit()
             print("Remaining records parsed!")
             return
@@ -111,17 +133,23 @@ class DatabaseHandler:
         if self.counter > self.batch_size:
             
             if self.kingdoms:
-                self.cursor.executemany("INSERT OR IGNORE INTO kingdom (kingdom_name) VALUES (?)", set(self.kingdoms))
+                self.cursor.executemany("INSERT OR IGNORE INTO kingdom (kingdom_name) VALUES (?)", 
+                                        self.remove_empties(set(self.kingdoms)))
             if self.phylums_kingdoms:
-                self.cursor.executemany("INSERT OR IGNORE INTO phylum (phylum_name, kingdom_name) VALUES (?, ?)", set(self.phylums_kingdoms))
+                self.cursor.executemany("INSERT OR IGNORE INTO phylum (phylum_name, kingdom_name) VALUES (?, ?)", 
+                                        self.remove_empties(set(self.phylums_kingdoms)))
             if self.classes_phylums:
-                self.cursor.executemany("INSERT OR IGNORE INTO class (class_name, phylum_name) VALUES (?, ?)", set(self.classes_phylums))
+                self.cursor.executemany("INSERT OR IGNORE INTO class (class_name, phylum_name) VALUES (?, ?)", 
+                                        self.remove_empties(set(self.classes_phylums)))
             if self.orders_classes:
-                self.cursor.executemany("INSERT OR IGNORE INTO `order` (order_name, class_name) VALUES (?, ?)", set(self.orders_classes))
+                self.cursor.executemany("INSERT OR IGNORE INTO `order` (order_name, class_name) VALUES (?, ?)", 
+                                        self.remove_empties(set(self.orders_classes)))
             if self.families_orders:
-                self.cursor.executemany("INSERT OR IGNORE INTO family (family_name, order_name) VALUES (?, ?)", set(self.families_orders))
+                self.cursor.executemany("INSERT OR IGNORE INTO family (family_name, order_name) VALUES (?, ?)", 
+                                        self.remove_empties(set(self.families_orders)))
             if self.genusses_families:
-                self.cursor.executemany("INSERT OR IGNORE INTO genus (genus_name, family_name) VALUES (?, ?)", set(self.genusses_families))
+                self.cursor.executemany("INSERT OR IGNORE INTO genus (genus_name, family_name) VALUES (?, ?)", 
+                                        self.remove_empties(set(self.genusses_families)))
 
             self.kingdoms = []
             self.phylums_kingdoms = []
@@ -136,7 +164,7 @@ class DatabaseHandler:
                     assembly_id, bioproject_id, biosample_id, pubmed_id, 
                     first_article_year, genbank_version_year, total_genes, coding_genes
                 ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            """, self.inserts)
+            """, self.remove_empties(self.inserts))
             self.connection.commit()
             self.inserts = []
             self.counter = 0
