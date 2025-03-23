@@ -7,16 +7,18 @@ class KrakenRunner:
     """
 
     def __init__(self, idx, fastq, 
-                 output, records, cores=1):
+                 out, cores=1):
         """
         Init class
         """
+
+        record = fastq.split("/")[-1].strip(".fastq")+".report"
         
         self.command = f"""kraken2 \
-                            --threads {cores} \
                             --db {idx} \
+                            --threads {cores} \
                             --use-names \
-                            --report {records} \
+                            --report {f"{out}/{record}"} \
                             {fastq} 1> /dev/null"""
         self.run_kraken()
 
